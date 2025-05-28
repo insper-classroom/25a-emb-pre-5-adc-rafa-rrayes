@@ -9,6 +9,14 @@
 #include "data.h"
 QueueHandle_t xQueueData;
 
+static int media(const int *arr, int n) {
+    int soma = 0;
+    for (int i = 0; i < n; i++) {
+        soma += arr[i];
+    }
+    return soma / n;
+}
+
 // não mexer! Alimenta a fila com os dados do sinal
 void data_task(void *p) {
     vTaskDelay(pdMS_TO_TICKS(400));
@@ -25,19 +33,23 @@ void data_task(void *p) {
 
 void process_task(void *p) {
     int data = 0;
+    int index = -1;
+    int data_array[5] = {0};
 
     while (true) {
         if (xQueueReceive(xQueueData, &data, 100)) {
-            // implementar filtro aqui!
+            index = (index + 1) % 5;
+            data_array[index] = data;
 
+            int average = media(data_array, 5);
+            printf("media: %d\n", average);
+            printf("array: [%d, %d, %d, %d, %d]\n", data_array[0], data_array[1], data_array[2], data_array[3], data_array[4]);
 
-
-
-            // deixar esse delay!
             vTaskDelay(pdMS_TO_TICKS(50));
         }
     }
 }
+
 
 int main() {
     stdio_init_all();
